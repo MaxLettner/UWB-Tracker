@@ -9,6 +9,8 @@ from fastapi.websockets import WebSocketDisconnect
 from pathlib import Path
 import mimetypes
 
+DIST = Path("../Frontend/dist")
+
 
 
 app = FastAPI()
@@ -89,7 +91,6 @@ async def get_scale():
     scale = await get_scale_from_dongle()
     return scale
 
-DIST = Path("reactfrontend/dist")
 
 @app.get("/{full_path:path}", name="root", include_in_schema=False)
 async def serve_react(full_path: str):
