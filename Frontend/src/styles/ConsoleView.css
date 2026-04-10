@@ -1,0 +1,7 @@
+.consoleView{
+    background: #0d0d0d;
+    color: #0f0;
+    padding: 8px;
+    font-family: monospace;
+    overflow-y: auto;
+}
