@@ -7,7 +7,7 @@ export default interface coord {
 
 let latestCoord : coord
 
-const socket = new WebSocket('ws://10.10.0.190:8000/api/stream/coordinates')
+const socket = new WebSocket('ws://127.0.0.1/api/stream/coordinates')
 
 socket.addEventListener('message', (event) => {
   latestCoord = event.data
