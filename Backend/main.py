@@ -43,7 +43,7 @@ async def test():
 <html><body>
 <pre id="out"></pre>
 <script>
-  const ws = new WebSocket(`ws://${location.host}/stream/coordinates`);
+  const ws = new WebSocket(`ws://${location.host}/api/stream/coordinates`);
   ws.onmessage = e => {
     const out = document.getElementById("out");
     out.textContent += e.data + "\\n";
