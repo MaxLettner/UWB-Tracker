@@ -11,7 +11,7 @@ const socket = new WebSocket('ws://10.10.0.190:8000/api/stream/coordinates')
 
 socket.addEventListener('message', (event) => {
   latestCoord = event.data
-  //console.log(latestCoord)
+  console.log(latestCoord)
 })
 
 export const getLatestPosition = (): coord => {

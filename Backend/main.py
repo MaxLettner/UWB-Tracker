@@ -11,8 +11,6 @@ import mimetypes
 
 DIST = Path("../Frontend/dist")
 
-
-
 app = FastAPI()
 app = FastAPI(
     root_path="/api",
