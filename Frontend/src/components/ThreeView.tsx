@@ -1,39 +1,44 @@
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import * as THREE from 'three'
 import { useEffect, useRef, useImperativeHandle, forwardRef } from "react"
+import type ICoord from '../services/coordinate.service'
 
 export interface ThreeViewHandle {
-  updateTargetPosition: (x: number, y: number, z: number) => void
-  setScale: (s: number) => void
+  updateTargetPosition: (coords: ICoord[]) => void
 }
 
 const ThreeView = forwardRef<ThreeViewHandle, {}>((_props, ref) => {
   const containerRef = useRef<HTMLDivElement | null>(null)
-  
-  //internal refs for Three.js objects
-  const sphereRef = useRef<THREE.Mesh | null>(null)
+  const globalScene = useRef<THREE.Scene | null>(null)
+  const locations = useRef<THREE.Mesh[]>([])
 
-  const scaleRef = useRef<number | null>(null)
-
-  //expose the movement method to App.tsx
   useImperativeHandle(ref, () => ({
-  updateTargetPosition(x, y, z) {
-    if (sphereRef.current) {
-      if (scaleRef.current != null) {
-        sphereRef.current.position.set(
-          x / scaleRef.current,
-          y / scaleRef.current,
-          z / scaleRef.current
-        )
-      } else {
-        console.error('No scale was set, yet a coordinate tried to show.')
-      }
+    updateTargetPosition(coords) {
+      removeLocations()
+
+      coords.forEach(c => {
+        newLocation(c)
+      })
     }
-  },
-  setScale(s) {
-    scaleRef.current = s
-  }
-}))
+  }))
+
+  const removeLocations = () => {
+  locations.current.forEach(e => {
+    globalScene.current?.remove(e)
+  })
+  locations.current = []
+}
+
+const newLocation = (coord: ICoord) => {
+  const sphereGeo = new THREE.SphereGeometry(0.03)
+  const sphere = new THREE.Mesh(
+    sphereGeo,
+    new THREE.MeshBasicMaterial({ color: 0x00ff00 })
+  )
+  sphere.position.set(coord.x, coord.y, coord.z)
+  globalScene.current?.add(sphere)
+  locations.current.push(sphere)
+}
 
   useEffect(() => {
     const container = containerRef.current
@@ -46,6 +51,7 @@ const ThreeView = forwardRef<ThreeViewHandle, {}>((_props, ref) => {
 
     const scene = new THREE.Scene()
     scene.background = new THREE.Color(0x000000)
+    globalScene.current = scene
 
     const aspect = container.clientWidth / container.clientHeight
     const s = 1
@@ -59,32 +65,20 @@ const ThreeView = forwardRef<ThreeViewHandle, {}>((_props, ref) => {
     controls.minPolarAngle = 1.2
     controls.enableDamping = true
 
-    // 1. THE CUBE
+    //CUBE
     const cubeGeo = new THREE.BoxGeometry(1, 1, 1)
     const cubeEdges = new THREE.EdgesGeometry(cubeGeo)
     const cube = new THREE.LineSegments(
       cubeEdges,
       new THREE.LineBasicMaterial({ color: 0x00a000, linewidth: 3 })
     )
-    // Align corner to 0,0,0
+    //Align corner to 0,0,0
     cube.translateX(0.5)
     cube.translateY(0.5)
     cube.translateZ(0.5)
     scene.add(cube)
 
-    // 2. THE TARGET SPHERE
-    const sphereGeo = new THREE.SphereGeometry(0.03)
-    const sphere = new THREE.Mesh(
-      sphereGeo, 
-      new THREE.MeshBasicMaterial({ color: 0x00ff00 })
-    )
-    
-    // Initial position: "Way off screen"
-    sphere.position.set(100, 100, 100)
-    
-    scene.add(sphere)
-    sphereRef.current = sphere
-
+    //animate
     let animationId: number
     const render = () => {
       animationId = requestAnimationFrame(render)
@@ -113,9 +107,7 @@ const ThreeView = forwardRef<ThreeViewHandle, {}>((_props, ref) => {
       controls.dispose()
       renderer.dispose()
       cubeGeo.dispose()
-      sphereGeo.dispose()
-      cube.material.dispose() 
-      sphere.material.dispose()
+      cube.material.dispose()
       if (container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement)
       }
@@ -123,9 +115,9 @@ const ThreeView = forwardRef<ThreeViewHandle, {}>((_props, ref) => {
   }, [])
 
   return (
-    <div 
-      ref={containerRef} 
-      style={{ width: "100%", height: "100%", position: "relative" }} 
+    <div
+      ref={containerRef}
+      style={{ width: "100%", height: "100%", position: "relative" }}
     />
   )
 })

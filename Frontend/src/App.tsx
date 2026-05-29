@@ -4,51 +4,31 @@ import ThreeView from "./components/ThreeView.tsx"
 import type { ThreeViewHandle } from "./components/ThreeView.tsx"
 import ConsoleView from "./components/ConsoleView.tsx"
 import * as service from "./services/coordinate.service.ts"
-import type coord from "./services/coordinate.service.ts"
+import type ICoord from "./services/coordinate.service.ts"
 
 import "./App.css"
 
 const App: React.FC = () => {
   const threeRef = useRef<ThreeViewHandle>(null)
-  const [dataView, setDataView] = useState<coord[]>([])
-  const [scale, setScale] = useState<number | null>(null)
+  const [dataView, setDataView] = useState<ICoord[][]>([])
 
-  // poll getScale until we get a value
-  useEffect(() => {
-    if (scale !== null) return
+  const updatePosition = async () => {
+    try {
+      const currentCoords = await service.getLatestPositions()
+      setDataView(prevData => [...prevData, currentCoords])
 
-    const pollScale = setInterval(() => {
-      const s = service.getScale()
-      if (s) {
-        setScale(s)
-        threeRef.current?.setScale(s)
-        clearInterval(pollScale)
+      if (threeRef.current) {
+        threeRef.current.updateTargetPosition(currentCoords)
       }
-    }, 1000)
-
-    return () => clearInterval(pollScale)
-  }, [scale])
-
-  // once scale is known, start polling coordinates
-  useEffect(() => {
-    if (scale === null) return
-
-    const updatePosition = async () => {
-      try {
-        const currentCoord = await service.getLatestPosition()
-        setDataView(prevData => [...prevData, currentCoord])
-
-        if (threeRef.current) {
-          threeRef.current.updateTargetPosition(currentCoord.x, currentCoord.y, currentCoord.z)
-        }
-      } catch (error) {
-        console.error("Error updating coordinates:", error)
-      }
+    } catch(error) {
+      console.error("Error updating coordinates:", error)
     }
+  }
 
-    const intervalId = setInterval(updatePosition, 1000)
+  useEffect(() => {
+    const intervalId = setInterval(updatePosition, 1)
     return () => clearInterval(intervalId)
-  }, [scale])
+  }, [])
 
   return (
     <div className="app">
