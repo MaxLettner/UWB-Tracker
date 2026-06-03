@@ -10,7 +10,7 @@ import "./App.css"
 
 const App: React.FC = () => {
   const threeRef = useRef<ThreeViewHandle>(null)
-  const [dataView, setDataView] = useState<ICoord[][]>([])
+  const [dataView, setDataView] = useState<(ICoord[] | string)[]>([])
 
   const updatePosition = async () => {
     try {
@@ -26,7 +26,7 @@ const App: React.FC = () => {
   }
 
   useEffect(() => {
-    const intervalId = setInterval(updatePosition, 1)
+    const intervalId = setInterval(updatePosition, 1000)
     return () => clearInterval(intervalId)
   }, [])
 
