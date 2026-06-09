@@ -10,23 +10,30 @@ import "./App.css"
 
 const App: React.FC = () => {
   const threeRef = useRef<ThreeViewHandle>(null)
-  const [dataView, setDataView] = useState<(ICoord[] | string)[]>([])
+  const [log, setLog] = useState<(ICoord[] | string)[]>([])
 
-  const updatePosition = async () => {
+  const updateConsole = async () => {
     try {
-      const currentCoords = await service.getLatestPositions()
-      setDataView(prevData => [...prevData, currentCoords])
+      const currentCoords = await service.getCurrentCoords()
+      setLog(prevData => [...prevData, currentCoords])
+    } catch(error) {
+      console.error("Error updating coordinates in console:", error)
+    }
+  }
 
+  const updateVisual = (currentCoords: ICoord[]) => {
+    try {
       if (threeRef.current) {
         threeRef.current.updateTargetPosition(currentCoords)
       }
     } catch(error) {
-      console.error("Error updating coordinates:", error)
+      console.error("Error updating coordinates visually:", error)
     }
   }
 
   useEffect(() => {
-    const intervalId = setInterval(updatePosition, 1000)
+    service.setOnMessageReceived(updateVisual)
+    const intervalId = setInterval(updateConsole, 1000)
     return () => clearInterval(intervalId)
   }, [])
 
@@ -35,7 +42,7 @@ const App: React.FC = () => {
       <Header />
       <div className="main">
         <ThreeView ref={threeRef} />
-        <ConsoleView data={dataView} />
+        <ConsoleView data={log} />
       </div>
     </div>
   )
