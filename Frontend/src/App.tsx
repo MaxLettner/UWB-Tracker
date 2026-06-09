@@ -3,7 +3,8 @@ import Header from "./components/Header.tsx"
 import ThreeView from "./components/ThreeView.tsx"
 import type { ThreeViewHandle } from "./components/ThreeView.tsx"
 import ConsoleView from "./components/ConsoleView.tsx"
-import * as service from "./services/coordinate.service.ts"
+import * as coordinateService from "./services/coordinate.service.ts"
+import * as calibrationService from "./services/calibration.service.ts"
 import type ICoord from "./services/coordinate.service.ts"
 
 import "./App.css"
@@ -14,8 +15,8 @@ const App: React.FC = () => {
 
   const updateConsole = async () => {
     try {
-      const currentCoords = await service.getCurrentCoords()
-      setLog(prevData => [...prevData, currentCoords])
+      const currentCoords = await coordinateService.getCurrentCoords()
+      appendLog(currentCoords)
     } catch(error) {
       console.error("Error updating coordinates in console:", error)
     }
@@ -31,11 +32,34 @@ const App: React.FC = () => {
     }
   }
 
+  const runCalibration = async () => {
+    const steps = [
+      calibrationService.calibrateBackground,
+      calibrationService.calibrateMin,
+      calibrationService.calibrateMax,
+    ]
+
+    for (const step of steps) {
+      const status = await step()
+      appendLog(status.message)
+      if (!status.ready) return
+    }
+
+    appendLog("All calibrations complete. Streaming...")
+  }
+
   useEffect(() => {
-    service.setOnMessageReceived(updateVisual)
-    const intervalId = setInterval(updateConsole, 1000)
-    return () => clearInterval(intervalId)
-  }, [])
+  coordinateService.setOnMessageReceived(updateVisual)
+  const intervalRef = { id: 0 }
+
+  runCalibration().then(() => {
+    intervalRef.id = setInterval(updateConsole, 1000)
+  })
+
+  return () => clearInterval(intervalRef.id)
+}, [])
+
+  const appendLog = (entry: ICoord[] | string) => setLog(prev => [...prev, entry])
 
   return (
     <div className="app">
