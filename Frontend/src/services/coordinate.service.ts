@@ -7,7 +7,7 @@ export default interface ICoord {
 
 let currentCoords: ICoord[] = []
 let onMessageReceived: ((currentCoords: ICoord[]) => void) | null = null
-const socket = new WebSocket('ws://localhost:8000/api/stream/coordinates')
+const socket = new WebSocket('ws://10.10.2.64:8000/api/coordinates/stream')
 
 socket.addEventListener('message', (event) => {
   currentCoords = JSON.parse(event.data)

@@ -28,7 +28,7 @@ const ConsoleView = ({ data }: Props) => {
           )
           : entry.map((c, innerIndex) => (
             <React.Fragment key={`${outerIndex}-${innerIndex}`}>
-              {innerIndex === 0 ? '>' : '\u00A0'} X: {c.x.toFixed(2)} Y: {c.y.toFixed(2)} Z: {c.z.toFixed(2)} Time: {c.timestamp.slice(11, 19)}<br />
+              {innerIndex === 0 ? '>' : '\u00A0'} X: {c.x.toFixed(2)} Y: {c.y.toFixed(2)} Z: {c.z.toFixed(2)} Time: {c.timestamp/*slice(11, 19)*/}<br />
             </React.Fragment>
           ))
       )}

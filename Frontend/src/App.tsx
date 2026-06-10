@@ -32,27 +32,16 @@ const App: React.FC = () => {
     }
   }
 
-  const runCalibration = async () => {
-    const steps = [
-      calibrationService.calibrateBackground,
-      calibrationService.calibrateMin,
-      calibrationService.calibrateMax,
-    ]
-
-    for (const step of steps) {
-      const status = await step()
-      appendLog(status.message)
-      if (!status.ready) return
-    }
-
-    appendLog("All calibrations complete. Streaming...")
+  const runDefaultCalibration = async () => {
+    appendLog((await calibrationService.calibrateMin(0.5)).message)
+    appendLog((await calibrationService.calibrateMax(10)).message)
   }
 
   useEffect(() => {
   coordinateService.setOnMessageReceived(updateVisual)
   const intervalRef = { id: 0 }
 
-  runCalibration().then(() => {
+  runDefaultCalibration().then(() => {
     intervalRef.id = setInterval(updateConsole, 1000)
   })
 

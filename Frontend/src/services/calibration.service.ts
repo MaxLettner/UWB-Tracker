@@ -4,16 +4,12 @@ export default interface ICalibrationStatus {
   message: string
 }
 
-export const calibrateBackground = () => post('calibrate/background')
+export const calibrateMin = (dist: number) => post('calibrate/min/' + dist)
 
-
-export const calibrateMin = () => post('calibrate/min')
-
-
-export const calibrateMax = () => post('calibrate/max')
+export const calibrateMax = (dist: number) => post('calibrate/max/' + dist)
 
 
 const post = async (route: string): Promise<ICalibrationStatus> => {
-  const res = await fetch(`http://localhost:8000/api/coordinates/${route}`, { method: 'POST' })
+  const res = await fetch(`http://10.10.2.64:8000/api/coordinates/${route}`, { method: 'POST' })
   return res.json()
 }
