@@ -1,19 +1,19 @@
 .header {
   height: 56px;
-  background-color: #181825; /* mantle */
-  color: #cdd6f4;             /* text */
+  background-color: #1e2030; /* macchiato: mantle */
+  color: #cad3f5;             /* macchiato: text */
   display: flex;
   align-items: center;
   padding: 0 16px;
   justify-content: space-between;
-  border-bottom: 1px solid #313244; /* surface0 */
+  border-bottom: 1px solid #363a4f; /* macchiato: surface0 */
 }
 
 .header__title {
   font-size: 18px;
   font-weight: 600;
   letter-spacing: 0.05em;
-  color: #cba6f7; /* mauve */
+  color: #c6a0f6; /* macchiato: mauve */
 }
 
 .header__controls {
@@ -30,25 +30,25 @@
 
 .header__label {
   font-size: 12px;
-  color: #a6adc8; /* subtext0 */
+  color: #a5adcb; /* macchiato: subtext0 */
   white-space: nowrap;
 }
 
 .header__input {
   width: 72px;
   padding: 4px 8px;
-  background: #1e1e2e;       /* base */
-  border: 1px solid #45475a; /* surface1 */
+  background: #24273a;       /* macchiato: base */
+  border: 1px solid #494d64; /* macchiato: surface1 */
   border-radius: 6px;
-  color: #cdd6f4;             /* text */
+  color: #cad3f5;             /* macchiato: text */
   font-size: 13px;
   outline: none;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 .header__input:focus {
-  border-color: #cba6f7;                       /* mauve */
-  box-shadow: 0 0 0 2px rgba(203, 166, 247, 0.2);
+  border-color: #c6a0f6;                       /* macchiato: mauve */
+  box-shadow: 0 0 0 2px rgba(198, 160, 246, 0.2);
 }
 
 /* Remove number input arrows */

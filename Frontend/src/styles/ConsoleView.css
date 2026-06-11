@@ -1,7 +1,8 @@
-.consoleView{
-    background: #0d0d0d;
-    color: #0f0;
+.consoleView {
+    background: #181926;    /* macchiato: crust */
+    color: #a6da95;         /* macchiato: green */
     padding: 8px;
     font-family: monospace;
     overflow-y: auto;
+    border-left: 1px solid #363a4f; /* macchiato: surface0 */
 }

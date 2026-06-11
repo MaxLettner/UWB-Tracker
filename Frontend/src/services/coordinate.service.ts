@@ -10,8 +10,8 @@ let onMessageReceived: ((currentCoords: ICoord[]) => void) | null = null
 const socket = new WebSocket('ws://10.10.2.64:8000/api/coordinates/stream')
 
 socket.addEventListener('message', (event) => {
-  currentCoords = JSON.parse(event.data)
-  //currentCoords = [{ x: 0.5, y: 0.5, z: Math.random(), timestamp: '2026-02-20T17:56:56.939303+00:00' }, { x: 0.3, y: 0.3, z: Math.random(), timestamp: '2026-02-20T17:56:56.939303+00:00' }]
+  //currentCoords = JSON.parse(event.data)
+  currentCoords = [{ x: 0.5, y: 0.5, z: Math.random(), timestamp: '2026-02-20T17:56:56.939303+00:00' }, { x: 0.3, y: 0.3, z: Math.random(), timestamp: '2026-02-20T17:56:56.939303+00:00' }]
   //just for testing
 
   console.log(currentCoords)

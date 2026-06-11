@@ -1,12 +1,14 @@
 html, body, #root {
   margin: 0;
   height: 100%;
+  background-color: #24273a; /* macchiato: base */
 }
 
 .app {
   height: 100%;
   display: flex;
   flex-direction: column;
+  background-color: #24273a; /* macchiato: base */
 }
 
 .main {
