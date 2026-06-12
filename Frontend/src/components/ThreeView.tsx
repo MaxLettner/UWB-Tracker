@@ -3,33 +3,38 @@ import * as THREE from 'three'
 import { useEffect, useRef, useImperativeHandle, forwardRef } from "react"
 import type ICoord from '../services/coordinate.service'
 
-// Catppuccin Macchiato accent colors
+//catppuccin macciato accent colors
 const SPHERE_COLORS = [
-  0xc6a0f6, // mauve
-  0x8aadf4, // blue
-  0x8bd5ca, // teal
-  0xa6da95, // green
-  0xeed49f, // yellow
-  0xf5a97f, // peach
-  0xf5bde6, // pink
-  0xed8796, // red
-  0xb7bdf8, // lavender
-  0x91d7e3, // sky
+  0xc6a0f6,// mauve
+  0xeed49f,// yellow
+  0xed8796,// red
+  0x8bd5ca,// teal
+  0xa6da95,// green
+  0x8aadf4,// blue
+  0xf5a97f,// peach
+  0x91d7e3,// sky
+  0xf5bde6,// pink
+  0xb7bdf8,// lavender
 ]
 
 export interface ThreeViewHandle {
   updateTargetPosition: (coords: ICoord[]) => void
 }
 
+interface LocationEntry {
+  sphere: THREE.Mesh
+  lines: THREE.Line[]
+  lineEnds: THREE.Mesh[]
+}
+
 const ThreeView = forwardRef<ThreeViewHandle, {}>((_props, ref) => {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const globalScene = useRef<THREE.Scene | null>(null)
-  const locations = useRef<THREE.Mesh[]>([])
+  const locations = useRef<LocationEntry[]>([])
 
   useImperativeHandle(ref, () => ({
     updateTargetPosition(coords) {
       removeLocations()
-
       coords.forEach((c, i) => {
         newLocation(c, i)
       })
@@ -37,23 +42,92 @@ const ThreeView = forwardRef<ThreeViewHandle, {}>((_props, ref) => {
   }))
 
   const removeLocations = () => {
-  locations.current.forEach(e => {
-    globalScene.current?.remove(e)
-  })
-  locations.current = []
-}
+    locations.current.forEach(({ sphere, lines, lineEnds }) => {
+      globalScene.current?.remove(sphere)
+      sphere.geometry.dispose()
+        ; (sphere.material as THREE.Material).dispose()
 
-const newLocation = (coord: ICoord, index: number) => {
-  const color = SPHERE_COLORS[index % SPHERE_COLORS.length]
-  const sphereGeo = new THREE.SphereGeometry(0.03)
-  const sphere = new THREE.Mesh(
-    sphereGeo,
-    new THREE.MeshBasicMaterial({ color })
-  )
-  sphere.position.set(coord.x, coord.y, coord.z)
-  globalScene.current?.add(sphere)
-  locations.current.push(sphere)
-}
+      lines.forEach(line => {
+        globalScene.current?.remove(line)
+        line.geometry.dispose()
+          ; (line.material as THREE.Material).dispose()
+      })
+
+      lineEnds.forEach(end => {
+        globalScene.current?.remove(end)
+        end.geometry.dispose()
+          ; (end.material as THREE.Material).dispose()
+      })
+    })
+    locations.current = []
+  }
+
+  const newLocation = (coord: ICoord, index: number) => {
+    const color = SPHERE_COLORS[index % SPHERE_COLORS.length]
+    const { x, y, z } = coord
+
+    //SPHERE
+    const sphereGeo = new THREE.SphereGeometry(0.03)
+    const sphere = new THREE.Mesh(
+      sphereGeo,
+      new THREE.MeshBasicMaterial({ color })
+    )
+    sphere.position.set(x, y, z)
+    globalScene.current?.add(sphere)
+
+    //LINES
+    const lineMaterial = () =>
+      new THREE.LineBasicMaterial({
+        color,
+        transparent: true,
+        opacity: 0.35,
+      })
+
+    //ENDS
+    const endGeo = new THREE.SphereGeometry(0.01)
+    const endMaterial = new THREE.MeshBasicMaterial({ color })
+
+    //Line to X=0 wall  (left/back face): horizontal along X axis
+    const lineX = new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(x, y, z),
+        new THREE.Vector3(0, y, z),
+      ]),
+      lineMaterial()
+    )
+    const endX = new THREE.Mesh(endGeo, endMaterial)
+    endX.position.set(0, y, z)
+
+    //Line to Y=0 wall  (bottom face): vertical along Y axis
+    const lineY = new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(x, y, z),
+        new THREE.Vector3(x, 0, z),
+      ]),
+      lineMaterial()
+    )
+    const endY = new THREE.Mesh(endGeo, endMaterial)
+    endY.position.set(x, 0, z)
+
+    //Line to Z=0 wall  (front face): depth along Z axis
+    const lineZ = new THREE.Line(
+      new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(x, y, z),
+        new THREE.Vector3(x, y, 0),
+      ]),
+      lineMaterial()
+    )
+    const endZ = new THREE.Mesh(endGeo, endMaterial)
+    endZ.position.set(x, y, 0)
+
+    const lines = [lineX, lineY, lineZ]
+    lines.forEach(l => globalScene.current?.add(l))
+
+    const lineEnds = [endX, endY, endZ]
+    lineEnds.forEach(e => globalScene.current?.add(e))
+
+    locations.current.push({ sphere, lines, lineEnds })
+  }
 
   useEffect(() => {
     const container = containerRef.current
@@ -65,7 +139,7 @@ const newLocation = (coord: ICoord, index: number) => {
     container.appendChild(renderer.domElement)
 
     const scene = new THREE.Scene()
-    scene.background = new THREE.Color(0x24273a) // macchiato: base
+    scene.background = new THREE.Color(0x24273a) //macciato: base
     globalScene.current = scene
 
     const aspect = container.clientWidth / container.clientHeight
@@ -85,9 +159,9 @@ const newLocation = (coord: ICoord, index: number) => {
     const cubeEdges = new THREE.EdgesGeometry(cubeGeo)
     const cube = new THREE.LineSegments(
       cubeEdges,
-      new THREE.LineBasicMaterial({ color: 0x5b6078, linewidth: 3 }) // macchiato: surface2
+      new THREE.LineBasicMaterial({ color: 0x5b6078, linewidth: 3 }) //macciato: surface2
     )
-    //Align corner to 0,0,0
+    //align corner to 0,0,0
     cube.translateX(0.5)
     cube.translateY(0.5)
     cube.translateZ(0.5)
@@ -113,7 +187,6 @@ const newLocation = (coord: ICoord, index: number) => {
       camera.bottom = -s
       camera.updateProjectionMatrix()
     }
-
     window.addEventListener('resize', handleResize)
 
     return () => {
@@ -122,7 +195,7 @@ const newLocation = (coord: ICoord, index: number) => {
       controls.dispose()
       renderer.dispose()
       cubeGeo.dispose()
-      cube.material.dispose()
+        ; (cube.material as THREE.Material).dispose()
       if (container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement)
       }

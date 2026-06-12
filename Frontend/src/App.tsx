@@ -34,7 +34,7 @@ const App: React.FC = () => {
 
   const runDefaultCalibration = async () => {
     appendLog((await calibrationService.calibrateMin(0.5)).message)
-    appendLog((await calibrationService.calibrateMax(10)).message)
+    appendLog((await calibrationService.calibrateMax(5)).message)
   }
 
   useEffect(() => {
@@ -48,11 +48,11 @@ const App: React.FC = () => {
   return () => clearInterval(intervalRef.id)
 }, [])
 
-  const appendLog = (entry: ICoord[] | string) => setLog(prev => [...prev, entry])
+  const appendLog = (entry: ICoord[] | string) => setLog(prev => [...prev, entry].slice(-50))
 
   return (
     <div className="app">
-      <Header />
+      <Header appendLog={appendLog}/>
       <div className="main">
         <ThreeView ref={threeRef} />
         <ConsoleView data={log} />
