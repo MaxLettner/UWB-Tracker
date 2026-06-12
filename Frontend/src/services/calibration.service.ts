@@ -1,6 +1,5 @@
 export default interface ICalibrationStatus {
   calibrated: boolean
-  //ready: boolean
   message: string
 }
 

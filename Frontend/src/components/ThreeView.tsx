@@ -3,7 +3,7 @@ import * as THREE from 'three'
 import { useEffect, useRef, useImperativeHandle, forwardRef } from "react"
 import type ICoord from '../services/coordinate.service'
 
-//catppuccin macciato accent colors
+//catppuccin macchiato accent colors
 const SPHERE_COLORS = [
   0xc6a0f6,// mauve
   0xeed49f,// yellow
@@ -33,6 +33,7 @@ const ThreeView = forwardRef<ThreeViewHandle, {}>((_props, ref) => {
   const locations = useRef<LocationEntry[]>([])
 
   useImperativeHandle(ref, () => ({
+    //exposes updateTargetPositon to App.tsx
     updateTargetPosition(coords) {
       removeLocations()
       coords.forEach((c, i) => {
@@ -42,6 +43,7 @@ const ThreeView = forwardRef<ThreeViewHandle, {}>((_props, ref) => {
   }))
 
   const removeLocations = () => {
+    //removes every location and disposes every geometry and material
     locations.current.forEach(({ sphere, lines, lineEnds }) => {
       globalScene.current?.remove(sphere)
       sphere.geometry.dispose()
@@ -87,7 +89,7 @@ const ThreeView = forwardRef<ThreeViewHandle, {}>((_props, ref) => {
     const endGeo = new THREE.SphereGeometry(0.01)
     const endMaterial = new THREE.MeshBasicMaterial({ color })
 
-    //Line to X=0 wall  (left/back face): horizontal along X axis
+    //line to x=0 wall
     const lineX = new THREE.Line(
       new THREE.BufferGeometry().setFromPoints([
         new THREE.Vector3(x, y, z),
@@ -98,7 +100,7 @@ const ThreeView = forwardRef<ThreeViewHandle, {}>((_props, ref) => {
     const endX = new THREE.Mesh(endGeo, endMaterial)
     endX.position.set(0, y, z)
 
-    //Line to Y=0 wall  (bottom face): vertical along Y axis
+    //line to y=0 wall
     const lineY = new THREE.Line(
       new THREE.BufferGeometry().setFromPoints([
         new THREE.Vector3(x, y, z),
@@ -109,7 +111,7 @@ const ThreeView = forwardRef<ThreeViewHandle, {}>((_props, ref) => {
     const endY = new THREE.Mesh(endGeo, endMaterial)
     endY.position.set(x, 0, z)
 
-    //Line to Z=0 wall  (front face): depth along Z axis
+    //line to z=0 wall
     const lineZ = new THREE.Line(
       new THREE.BufferGeometry().setFromPoints([
         new THREE.Vector3(x, y, z),
@@ -139,7 +141,7 @@ const ThreeView = forwardRef<ThreeViewHandle, {}>((_props, ref) => {
     container.appendChild(renderer.domElement)
 
     const scene = new THREE.Scene()
-    scene.background = new THREE.Color(0x24273a) //macciato: base
+    scene.background = new THREE.Color(0x24273a) //macchiato: base
     globalScene.current = scene
 
     const aspect = container.clientWidth / container.clientHeight
@@ -147,6 +149,7 @@ const ThreeView = forwardRef<ThreeViewHandle, {}>((_props, ref) => {
     const camera = new THREE.OrthographicCamera(-s * aspect, s * aspect, s, -s, 0.1, 1000)
     camera.position.set(3, 2.5, 2.5)
 
+    //TURN-PHYSICS
     const controls = new OrbitControls(camera, renderer.domElement)
     controls.target.set(0.5, 0.5, 0.5)
     controls.enableZoom = false
@@ -159,7 +162,7 @@ const ThreeView = forwardRef<ThreeViewHandle, {}>((_props, ref) => {
     const cubeEdges = new THREE.EdgesGeometry(cubeGeo)
     const cube = new THREE.LineSegments(
       cubeEdges,
-      new THREE.LineBasicMaterial({ color: 0x5b6078, linewidth: 3 }) //macciato: surface2
+      new THREE.LineBasicMaterial({ color: 0x5b6078, linewidth: 3 }) //macchiato: surface2
     )
     //align corner to 0,0,0
     cube.translateX(0.5)
