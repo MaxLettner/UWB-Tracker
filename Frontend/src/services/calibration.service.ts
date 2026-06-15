@@ -9,6 +9,6 @@ export const calibrateMax = (dist: number) => post('calibrate/max/' + dist)
 
 
 const post = async (route: string): Promise<ICalibrationStatus> => {
-  const res = await fetch(`http://localhost:8000/api/coordinates/${route}`, { method: 'POST' })
+  const res = await fetch(`/api/coordinates/${route}`, { method: 'POST' })
   return res.json()
 }

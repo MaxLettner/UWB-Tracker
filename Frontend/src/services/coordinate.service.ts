@@ -9,7 +9,10 @@ export default interface ICoord {
 let currentCoords: ICoord[] = []
 let onMessageReceived: ((currentCoords: ICoord[]) => void) | null = null //is set from App.tsx to update the cube
 
-const socket = new WebSocket('ws://localhost:8000/api/coordinates/stream')
+const socketUrl = new URL('/api/coordinates/stream', window.location.origin)
+socketUrl.protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+
+const socket = new WebSocket(socketUrl.toString())
 
 socket.addEventListener('message', (event) => {
   currentCoords = JSON.parse(event.data)
