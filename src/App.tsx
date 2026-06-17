@@ -4,7 +4,6 @@ import ThreeView from "./components/ThreeView.tsx"
 import type { ThreeViewHandle } from "./components/ThreeView.tsx"
 import ConsoleView from "./components/ConsoleView.tsx"
 import * as coordinateService from "./services/coordinate.service.ts"
-//import * as calibrationService from "./services/calibration.service.ts"
 import type ICoord from "./services/coordinate.service.ts"
 
 import "./App.css"
@@ -34,26 +33,13 @@ const App: React.FC = () => {
     }
   }
 
-  //default calibration is run once at start
-  // const runDefaultCalibration = async () => {
-  //   appendLog((await calibrationService.calibrateMin(0.5)).message)
-  //   appendLog((await calibrationService.calibrateMax(5)).message)
-  // }
-
   useEffect(() => {
     //giving the function to the service so it can execute it with eventlistener
     coordinateService.setOnMessageReceived(updateVisual)
-    //setting intervalId in a ref so its not reset upon rerender
-    const intervalRef = { id: 0 }
 
-    // runDefaultCalibration().then(() => {
-    //   //after calibration is finished start the intervall to update the console
-    //   intervalRef.id = setInterval(updateConsole, 1000)
-    // })
+    const intervalId = setInterval(updateConsole, 1000)
 
-    intervalRef.id = setInterval(updateConsole, 1000)
-
-    return () => clearInterval(intervalRef.id)
+    return () => clearInterval(intervalId)
   }, [])
 
   //.slice trims the list to the last 50 entries
