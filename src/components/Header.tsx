@@ -1,6 +1,6 @@
 import '../styles/Header.css'
 import * as calibrationService from '../services/calibration.service'
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type ICoord from '../services/coordinate.service';
 
 interface Props {
@@ -8,22 +8,24 @@ interface Props {
 }
 
 const Header = ({appendLog}: Props) => {
-  const [min, setMin] = useState(0.5)
-  const [max, setMax] = useState(5)
+  const [min, setMin] = useState(0)
+  const [max, setMax] = useState(2)
+
+  useEffect(() => {
+    calibrationService.calibrateMin(0).then((res) => appendLog(res.message))
+    calibrationService.calibrateMax(2).then((res) => appendLog(res.message))
+  }, [])
 
   const handleMinChange = async(e: React.ChangeEvent<HTMLInputElement>) => {
     const value = Number(e.target.value)
     setMin(value)
-    const res = await calibrationService.calibrateMin(value)
-    appendLog(res.message)    
+    calibrationService.calibrateMin(value).then((res) => appendLog(res.message))
   }
 
   const handleMaxChange = async(e: React.ChangeEvent<HTMLInputElement>) => {
     const value = Number(e.target.value)
     setMax(value)
-    calibrationService.calibrateMax(value)
-    const res = await calibrationService.calibrateMax(value)
-    appendLog(res.message)    
+    calibrationService.calibrateMax(value).then((res) => appendLog(res.message))
   }
 
   return (

@@ -27,6 +27,8 @@ interface LocationEntry {
   lineEnds: THREE.Mesh[]
 }
 
+const clamp = (value: number) => Math.min(1, Math.max(0, value))
+
 const ThreeView = forwardRef<ThreeViewHandle, {}>((_props, ref) => {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const globalScene = useRef<THREE.Scene | null>(null)
@@ -66,7 +68,9 @@ const ThreeView = forwardRef<ThreeViewHandle, {}>((_props, ref) => {
 
   const newLocation = (coord: ICoord, index: number) => {
     const color = SPHERE_COLORS[index % SPHERE_COLORS.length]
-    const { x, y, z } = coord
+    const x = clamp(coord.x)
+    const y = 1 - clamp(coord.y)
+    const z = clamp(coord.z)
 
     //SPHERE
     const sphereGeo = new THREE.SphereGeometry(0.03)
